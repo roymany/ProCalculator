@@ -1,18 +1,20 @@
 def get_expression() -> str:
     try:
-        expression = input("enter expression")
-        expression.replace(" ", "")
+        expression_with_spaces = input("enter expression")
+        expression = "".join(expression_with_spaces.split())
+        if not expression:
+            raise ValueError("user didn't give an expression")
+
     except EOFError:
-        print("end of file interrupt")
-        return ""
+        raise EOFError("given end of file input")
     return expression
 
 
 def check_tilda_and_neg(string: str) -> []:
     if string[-1] == '~' or string[-1] == '-':
-        print("error:")
+        raise ValueError("'-' or '~' cannot be in the end of a mathematical expression")
     if 't' in string:
-        print("error, not correct input")
+        raise ValueError("illegal char in expression")
     expression_with_correct_Tildas = []
     index = -1
     while index < len(string):
@@ -38,47 +40,14 @@ def check_tilda_and_neg(string: str) -> []:
                         expression_with_correct_Tildas.append('t')
                     index -= 1
                 else:
-                    print("error with -~")
-                    return
+                    raise ValueError(
+                        "2 '~' in a row cannot be in a mathematical expression unless the first '-' is an operator")
             else:
                 expression_with_correct_Tildas.append(string[index])
     for item in expression_with_correct_Tildas:
         if item == 't':
             expression_with_correct_Tildas.remove(item)
     return expression_with_correct_Tildas
-
-
-"""def check_if_expression_is_valid(string: str) -> bool:
-    if (not string[0].isnumeric()) and (string[0] != '-' or string[0] != '~' or string[0] != '('):
-        return False
-    index = 0
-    list_of_brackets = []
-    while index in range(len(string)):
-        if string[index] == '-' or string[index] == '~':
-            index = +1
-            while index < len(string) and string[index] == '-':
-                index += 1
-            if not (index < len(string) and (string[index].isnumeric() or string[index] == '(')):
-                return False
-            index -= 1
-        elif string[index] == '(':
-            list_of_brackets.append(1)
-        elif string[index] == ')':
-            if not list_of_brackets:
-                return False
-            list_of_brackets.pop()
-        elif (string[index] == '+' or string[index] == '*' or string[index] == '/' or string[index] == '@' or
-              string[index] == '^' or string[index] == '&' or string[index] == '%' or string[index] == '$'):
-            if (((string[index - 1] != '!' or string[index - 1] != ')') and (not string[index - 1].isnumeric()))
-                    or (index + 1 >= len(string)) or ((not string[index + 1].isnumeric()) and (
-                            string[index + 1] != '-' or string[index + 1] != '~' or string[index + 1] != '('))):
-                return False
-        elif string[index].isnumeric():
-            print("")
-        else:
-            return False
-        index += 1
-    return True"""
 
 
 def calculate_postfix_expression(postfix: list) -> float:
@@ -88,23 +57,31 @@ def calculate_postfix_expression(postfix: list) -> float:
         if (item == '+' or item == '-' or item == '*' or item == '/' or item == '^' or item == '&'
                 or item == '$' or item == '@' or item == '%'):
             operator = s.pop()
-            if len(s) > 2:
+            if len(s) >= 2:
                 num1 = s.pop()
                 num2 = s.pop()
-                num = calculate_by_two_operators(float(num2), float(num1), operator)
+                try:
+                    num = calculate_by_two_operators(float(num2), float(num1), operator)
+                except Exception as err:
+                    raise err
                 s.append(num)
             else:
-                print("error")
+                raise ValueError("number of operators doesnt match to the number of operands")
         elif item == '!' or item == '~':
             operator = s.pop()
-            if len(s) > 1:
+            if len(s) >= 1:
                 num1 = s.pop()
-                num = calculate_by_one_operator(float(num1), operator)
+                try:
+                    num = calculate_by_one_operator(float(num1), operator)
+                except Exception as err:
+                    raise err
                 s.append(num)
+            else:
+                raise ValueError("number of operators doesnt match to the number of operands")
     return s[len(s) - 1]
 
 
-def converter_expression_to_postfix(string: str) -> float:
+def converter_expression_to_postfix(string: str) -> list:
     s = []
     postfix_expression = []
     dot = 0
@@ -119,7 +96,7 @@ def converter_expression_to_postfix(string: str) -> float:
             while s and s[len(s) - 1] != '(':
                 postfix_expression.append(s.pop())
             if not s:
-                print("error: ) with no (")
+                raise ValueError("there is closing parenthesis without opening parenthesis")
             s.pop()
         elif string[index].isnumeric():
             while (index < len(string)) and (string[index].isnumeric() or string[index] == '.'):
@@ -131,8 +108,7 @@ def converter_expression_to_postfix(string: str) -> float:
                 elif dot == 0 and string[index].isnumeric():
                     sum_of_num = sum_of_num * 10 + float(string[index])
                 else:
-                    print("error: 2 . in a row")
-                    return 0
+                    raise ValueError("cant be 2 dots in one number")
                 index += 1
             postfix_expression.append(str(sum_of_num + after_dot))
             sum_of_num = 0
@@ -147,15 +123,13 @@ def converter_expression_to_postfix(string: str) -> float:
                 postfix_expression.append(s.pop())
             s.append(string[index])
         else:
-            print("error: illegal char")
+            raise ValueError("illegal char in expression")
         index += 1
     if '(' in s:
-        print("error: ( wih no )")
+        raise ValueError("there is opening parenthesis without closing parenthesis")
     while s:
         postfix_expression.append(s.pop())
-    print(postfix_expression)
-    result = calculate_postfix_expression(postfix_expression)
-    return result
+    return postfix_expression
 
 
 def priority(operator: chr) -> int:
@@ -184,8 +158,7 @@ def calculate_by_two_operators(num1: float, num2: float, operator: chr) -> str:
         return str(num1 * num2)
     if operator == '/':
         if num2 == 0:
-            print("error: divide by zero")
-            return ""  # return exception
+            raise ZeroDivisionError("there is division by zero in the expression")
         return str(num1 / num2)
     if operator == '^':
         return str(num1 ** num2)
@@ -206,11 +179,9 @@ def calculate_by_one_operator(num1: float, operator: chr) -> str:
         temp = num1
         numbers_after_decimal = str(temp).split('.')[1]
         if int(numbers_after_decimal) != 0:
-            print("error: factorial to float number")
-            return ""
+            raise ValueError("factorial cannot be done on a float number")
         if num1 < 0:
-            print("error: factorial to negative number")
-            return ""
+            raise ValueError("factorial cannot be done on a negative number")
         index = 1
         sum_factorial = 1
         while index <= num1:
@@ -222,9 +193,14 @@ def calculate_by_one_operator(num1: float, operator: chr) -> str:
 
 
 def main():
-    expression = ''.join(check_tilda_and_neg("+*/"))
-    print(expression)
-    print(converter_expression_to_postfix(expression))
+    try:
+        expression = get_expression()
+        expression = ''.join(check_tilda_and_neg(expression))
+        postfix_expression = converter_expression_to_postfix(expression)
+        result = calculate_postfix_expression(postfix_expression)
+        print("the result of the expression: " + str(result))
+    except (EOFError, ValueError, ZeroDivisionError) as err:
+        print(err)
 
 
 if __name__ == '__main__':
