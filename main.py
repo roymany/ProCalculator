@@ -78,7 +78,9 @@ def calculate_postfix_expression(postfix: list) -> float:
                 s.append(num)
             else:
                 raise ValueError("number of operators doesnt match to the number of operands")
-    return s[len(s) - 1]
+    if s:
+        return s[len(s) - 1]
+    return 0
 
 
 def converter_expression_to_postfix(string: str) -> list:
@@ -162,6 +164,8 @@ def calculate_by_two_operators(num1: float, num2: float, operator: chr) -> str:
         return str(num1 / num2)
     if operator == '^':
         return str(num1 ** num2)
+    if operator == '%':
+        return str(num1 % num2)
     if operator == '@':
         return str((num1 + num2) / 2)
     if operator == '&':
