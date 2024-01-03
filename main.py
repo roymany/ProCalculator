@@ -93,8 +93,18 @@ def converter_expression_to_postfix(string: str) -> list:
     index = 0
     while index in range(len(string)):
         if string[index] == '(':
+            if index < len(string) - 1 and string[index + 1] == '!':
+                raise ValueError("parenthesis cannot start with factorial")
+            if index > 0 and (string[index - 1].isnumeric() or string[index - 1] == '!' or string[index - 1] == ')'):
+                while s and (priority('*') <= priority(s[len(s) - 1])):
+                    postfix_expression.append(s.pop())
+                s.append('*')
             s.append(string[index])
         elif string[index] == ')':
+            if index > 0 and ((not string[index - 1].isnumeric()) and string[index - 1] != '!'):
+                raise ValueError("parenthesis cannot end with operands except factorial and they also cant be empty")
+            if index < len(string) - 1 and string[index + 1].isnumeric():
+                raise ValueError("you cant put a number after parenthesis")
             while s and s[len(s) - 1] != '(':
                 postfix_expression.append(s.pop())
             if not s:
@@ -110,7 +120,7 @@ def converter_expression_to_postfix(string: str) -> list:
                 elif dot == 0 and string[index].isnumeric():
                     sum_of_num = sum_of_num * 10 + float(string[index])
                 else:
-                    raise ValueError("cant be 2 dots in one number")
+                    raise ValueError("there are 2 dots in one number")
                 index += 1
             postfix_expression.append(str(sum_of_num + after_dot))
             sum_of_num = 0
@@ -121,6 +131,9 @@ def converter_expression_to_postfix(string: str) -> list:
         elif string[index] == '+' or string[index] == '-' or string[index] == '*' or string[index] == '/' or string[
             index] == '^' or string[index] == '&' or string[index] == '$' or string[index] == '@' or string[
             index] == '%' or string[index] == '~' or string[index] == '!':
+            if string[index] == '!':
+                if index < len(string) - 1 and string[index + 1].isnumeric():
+                    raise ValueError("you cant put a number after factorial")
             while s and (priority(string[index]) <= priority(s[len(s) - 1])):
                 postfix_expression.append(s.pop())
             s.append(string[index])
@@ -163,6 +176,8 @@ def calculate_by_two_operators(num1: float, num2: float, operator: chr) -> str:
             raise ZeroDivisionError("there is division by zero in the expression")
         return str(num1 / num2)
     if operator == '^':
+        if num1 < 0 < num2 < 1:
+            raise ValueError("cant do power between zero to one for number lower than zero")
         return str(num1 ** num2)
     if operator == '%':
         return str(num1 % num2)
