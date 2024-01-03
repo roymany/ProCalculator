@@ -5,7 +5,7 @@ def get_expression() -> str:
     :return:  math expression without spaces
     """
     try:
-        expression_with_spaces = input("enter expression")
+        expression_with_spaces = input("enter math expression: ")
         expression = "".join(expression_with_spaces.split())
         if not expression:
             raise ValueError("user didn't give an expression")
@@ -33,6 +33,9 @@ def check_tilda_and_neg(string: str) -> []:
         index += 1
         Tildas_counter = 0
         if index < len(string):
+            if string[index] == '~' and index > 0 and (
+                    string[index - 1].isnumeric() or string[index - 1] == ')' or string[index - 1] == '!'):
+                raise ValueError("'~' cannot be use as binary operator like '-'")
             if string[index] == '-' and index > 0 and (
                     string[index - 1].isnumeric() or string[index - 1] == ')' or string[index - 1] == '!'):
                 expression_with_correct_Tildas.append('-')
