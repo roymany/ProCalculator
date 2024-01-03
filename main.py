@@ -1,4 +1,9 @@
 def get_expression() -> str:
+    """
+
+    function that scan math expression from user and return it without spaces
+    :return:  math expression without spaces
+    """
     try:
         expression_with_spaces = input("enter expression")
         expression = "".join(expression_with_spaces.split())
@@ -11,6 +16,13 @@ def get_expression() -> str:
 
 
 def check_tilda_and_neg(string: str) -> []:
+    """
+
+    :param string: get math expression as string
+    :return: list that every element is char in the string and all '-' in a row become 1 (if the number of them is odd)
+     and all '-' which suppose to be negative and not operator becomes '~', also the function check all '-' and '~' are
+     legal
+    """
     if string[-1] == '~' or string[-1] == '-':
         raise ValueError("'-' or '~' cannot be in the end of a mathematical expression")
     if 't' in string:
@@ -51,6 +63,11 @@ def check_tilda_and_neg(string: str) -> []:
 
 
 def calculate_postfix_expression(postfix: list) -> float:
+    """
+
+    :param postfix: get a list which represent a postfix math expression
+    :return: the result of the math expression
+    """
     s = []
     for item in postfix:
         s.append(item)
@@ -84,6 +101,11 @@ def calculate_postfix_expression(postfix: list) -> float:
 
 
 def converter_expression_to_postfix(string: str) -> list:
+    """
+
+    :param string: get a math expression (string)
+    :return: math expression in postfix
+    """
     s = []
     postfix_expression = []
     dot = 0
@@ -148,6 +170,11 @@ def converter_expression_to_postfix(string: str) -> list:
 
 
 def priority(operator: chr) -> int:
+    """
+
+    :param operator: get a char which represent operator
+    :return: the power of the operator
+    """
     if operator == '+' or operator == '-':
         return 1
     elif operator == '*' or operator == '/':
@@ -165,6 +192,13 @@ def priority(operator: chr) -> int:
 
 
 def calculate_by_two_operators(num1: float, num2: float, operator: chr) -> str:
+    """
+
+    :param num1: number in math expression
+    :param num2: number in math expression
+    :param operator: operator between 2 numbers in math expression
+    :return: the result of: (num1 operator num2) for example: (5+4) return 9
+    """
     if operator == '+':
         return str(num1 + num2)
     if operator == '-':
@@ -194,6 +228,12 @@ def calculate_by_two_operators(num1: float, num2: float, operator: chr) -> str:
 
 
 def calculate_by_one_operator(num1: float, operator: chr) -> str:
+    """
+
+    :param num1: number in math expression
+    :param operator: unary operator in math expression
+    :return: the result of the number with the operator for example: 3! return 6
+    """
     if operator == '!':
         temp = num1
         numbers_after_decimal = str(temp).split('.')[1]
