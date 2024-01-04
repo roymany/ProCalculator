@@ -142,7 +142,7 @@ def converter_expression_to_postfix_and_calculate(string: str) -> float:
         if string[index] == '(':
             if index < len(string) - 1 and string[index + 1] == '!':
                 raise ValueError("parenthesis cannot start with factorial")
-            if index > 0 and (string[index - 1].isnumeric() or string[index - 1] != '!'):
+            if index > 0 and (string[index - 1].isnumeric() or string[index - 1] == '!' or string[index - 1] == ')'):
                 raise ValueError("you must put operator before parenthesis")
             s.append(string[index])
         elif string[index] == ')':
@@ -181,7 +181,7 @@ def converter_expression_to_postfix_and_calculate(string: str) -> float:
             if string[index] == '!':
                 if index < len(string) - 1 and string[index + 1].isnumeric():
                     raise ValueError("you cant put a number after factorial")
-            while s and (priority(string[index]) <= priority(s[len(s) - 1])):
+            while s and (priority(string[index]) <= priority(s[len(s) - 1])):  # maybe <= for -
                 postfix_expression.append(s.pop())
             s.append(string[index])
         else:
