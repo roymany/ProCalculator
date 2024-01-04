@@ -61,24 +61,15 @@ def check_tilda_and_neg(string: str) -> []:
                         "2 '~' in a row cannot be in a mathematical expression unless the first '-' is an operator")
             elif string[index] == '-':
                 Tildas_counter += 1
-                if (not expression_with_correct_Tildas) or (expression_with_correct_Tildas[
-                                                                len(expression_with_correct_Tildas) - 1] != '~' and
-                                                            expression_with_correct_Tildas[
-                                                                len(expression_with_correct_Tildas) - 1] != 't' and
-                                                            expression_with_correct_Tildas[
-                                                                len(expression_with_correct_Tildas) - 1] != '#'):
+                index += 1
+                while index < len(string) and string[index] == '-':
+                    Tildas_counter += 1
                     index += 1
-                    while index < len(string) and string[index] == '-':
-                        Tildas_counter += 1
-                        index += 1
-                    if Tildas_counter % 2 == 1:
-                        expression_with_correct_Tildas.append('#')
-                    else:
-                        expression_with_correct_Tildas.append('t')
-                    index -= 1
+                if Tildas_counter % 2 == 1:
+                    expression_with_correct_Tildas.append('#')
                 else:
-                    raise ValueError(
-                        "2 '~' in a row cannot be in a mathematical expression unless the first '-' is an operator")
+                    expression_with_correct_Tildas.append('t')
+                index -= 1
             else:
                 expression_with_correct_Tildas.append(string[index])
     for item in expression_with_correct_Tildas:
