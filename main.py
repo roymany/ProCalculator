@@ -25,7 +25,7 @@ def check_tilda_and_neg(string: str) -> []:
     """
     if string[-1] == '~' or string[-1] == '-':
         raise ValueError("'-' or '~' cannot be in the end of a mathematical expression")
-    if 't' in string:
+    if 't' in string or '#' in string:
         raise ValueError("illegal char in expression")
     expression_with_correct_Tildas = []
     index = -1
@@ -39,18 +39,40 @@ def check_tilda_and_neg(string: str) -> []:
             if string[index] == '-' and index > 0 and (
                     string[index - 1].isnumeric() or string[index - 1] == ')' or string[index - 1] == '!'):
                 expression_with_correct_Tildas.append('-')
-            elif string[index] == '-' or string[index] == '~':
+            elif string[index] == '~':
                 Tildas_counter += 1
                 if (not expression_with_correct_Tildas) or (expression_with_correct_Tildas[
                                                                 len(expression_with_correct_Tildas) - 1] != '~' and
                                                             expression_with_correct_Tildas[
-                                                                len(expression_with_correct_Tildas) - 1] != 't'):
+                                                                len(expression_with_correct_Tildas) - 1] != 't' and
+                                                            expression_with_correct_Tildas[
+                                                                len(expression_with_correct_Tildas) - 1] != '#'):
                     index += 1
                     while index < len(string) and string[index] == '-':
                         Tildas_counter += 1
                         index += 1
                     if Tildas_counter % 2 == 1:
                         expression_with_correct_Tildas.append('~')
+                    else:
+                        expression_with_correct_Tildas.append('t')
+                    index -= 1
+                else:
+                    raise ValueError(
+                        "2 '~' in a row cannot be in a mathematical expression unless the first '-' is an operator")
+            elif string[index] == '-':
+                Tildas_counter += 1
+                if (not expression_with_correct_Tildas) or (expression_with_correct_Tildas[
+                                                                len(expression_with_correct_Tildas) - 1] != '~' and
+                                                            expression_with_correct_Tildas[
+                                                                len(expression_with_correct_Tildas) - 1] != 't' and
+                                                            expression_with_correct_Tildas[
+                                                                len(expression_with_correct_Tildas) - 1] != '#'):
+                    index += 1
+                    while index < len(string) and string[index] == '-':
+                        Tildas_counter += 1
+                        index += 1
+                    if Tildas_counter % 2 == 1:
+                        expression_with_correct_Tildas.append('#')
                     else:
                         expression_with_correct_Tildas.append('t')
                     index -= 1
@@ -87,7 +109,7 @@ def calculate_postfix_expression(postfix: list) -> float:
                 s.append(num)
             else:
                 raise ValueError("number of operators doesnt match to the number of operands")
-        elif item == '!' or item == '~':
+        elif item == '!' or item == '~' or item == '#':
             operator = s.pop()
             if len(s) >= 1:
                 num1 = s.pop()
@@ -103,11 +125,11 @@ def calculate_postfix_expression(postfix: list) -> float:
     return 0
 
 
-def converter_expression_to_postfix(string: str) -> list:
+def converter_expression_to_postfix_and_calculate(string: str) -> float:
     """
-
+     get a math expression and convert it to postfix and return the result of it
     :param string: get a math expression (string)
-    :return: math expression in postfix
+    :return: result of math expression
     """
     s = []
     postfix_expression = []
@@ -120,10 +142,8 @@ def converter_expression_to_postfix(string: str) -> list:
         if string[index] == '(':
             if index < len(string) - 1 and string[index + 1] == '!':
                 raise ValueError("parenthesis cannot start with factorial")
-            if index > 0 and (string[index - 1].isnumeric() or string[index - 1] == '!' or string[index - 1] == ')'):
-                while s and (priority('*') <= priority(s[len(s) - 1])):
-                    postfix_expression.append(s.pop())
-                s.append('*')
+            if index > 0 and (string[index - 1].isnumeric() or string[index - 1] != '!'):
+                raise ValueError("you must put operator before parenthesis")
             s.append(string[index])
         elif string[index] == ')':
             if index > 0 and ((not string[index - 1].isnumeric()) and string[index - 1] != '!'):
@@ -139,6 +159,8 @@ def converter_expression_to_postfix(string: str) -> list:
             while (index < len(string)) and (string[index].isnumeric() or string[index] == '.'):
                 if dot == 0 and string[index] == '.':
                     dot = 1
+                    if index >= len(string) - 1 or not string[index].isnumeric():
+                        raise ValueError("you must put a number after dot")
                 elif dot == 1 and string[index].isnumeric():
                     after_dot = after_dot + float(string[index]) / power10_after_dot
                     power10_after_dot = power10_after_dot * 10
@@ -155,7 +177,7 @@ def converter_expression_to_postfix(string: str) -> list:
             index -= 1
         elif string[index] == '+' or string[index] == '-' or string[index] == '*' or string[index] == '/' or string[
             index] == '^' or string[index] == '&' or string[index] == '$' or string[index] == '@' or string[
-            index] == '%' or string[index] == '~' or string[index] == '!':
+            index] == '%' or string[index] == '~' or string[index] == '!' or string[index] == '#':
             if string[index] == '!':
                 if index < len(string) - 1 and string[index + 1].isnumeric():
                     raise ValueError("you cant put a number after factorial")
@@ -169,7 +191,8 @@ def converter_expression_to_postfix(string: str) -> list:
         raise ValueError("there is opening parenthesis without closing parenthesis")
     while s:
         postfix_expression.append(s.pop())
-    return postfix_expression
+    result = calculate_postfix_expression(postfix_expression)
+    return result
 
 
 def priority(operator: chr) -> int:
@@ -178,7 +201,7 @@ def priority(operator: chr) -> int:
     :param operator: get a char which represent operator
     :return: the power of the operator
     """
-    if operator == '+' or operator == '-':
+    if operator == '+' or operator == '-' or operator == '#':
         return 1
     elif operator == '*' or operator == '/':
         return 2
@@ -250,7 +273,7 @@ def calculate_by_one_operator(num1: float, operator: chr) -> str:
             sum_factorial = sum_factorial * index
             index += 1
         return sum_factorial
-    if operator == '~':
+    if operator == '~' or operator == '#':
         return str(num1 * -1)
 
 
@@ -258,8 +281,7 @@ def main():
     try:
         expression = get_expression()
         expression = ''.join(check_tilda_and_neg(expression))
-        postfix_expression = converter_expression_to_postfix(expression)
-        result = calculate_postfix_expression(postfix_expression)
+        result = converter_expression_to_postfix_and_calculate(expression)
         print("the result of the expression: " + str(result))
     except (EOFError, ValueError, ZeroDivisionError) as err:
         print(err)
