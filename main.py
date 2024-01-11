@@ -193,28 +193,6 @@ def converter_expression_to_postfix(string: str) -> list:
     return postfix_expression
 
 
-def priority(operator: chr) -> int:
-    """
-
-    :param operator: get a char which represent operator
-    :return: the power of the operator
-    """
-    if operator == '+' or operator == '-' or operator == '_':
-        return 1
-    elif operator == '*' or operator == '/':
-        return 2
-    elif operator == '^':
-        return 3
-    elif operator == '%':
-        return 4
-    elif operator == '&' or operator == '@' or operator == '$':
-        return 5
-    elif operator == '!' or operator == '~' or operator == '#':
-        return 6
-    else:
-        return 0
-
-
 def calculate_by_two_operators(num1: float, num2: float, operator: chr) -> str:
     """
 
