@@ -117,7 +117,7 @@ def calculate_postfix_expression(postfix: list) -> float:
             else:
                 raise ValueError("number of operators doesn't match to the number of operands")
     if s:
-        return s[len(s) - 1]
+        return float(s[len(s) - 1])
     return 0
 
 
@@ -270,23 +270,33 @@ def calculate_by_one_operator(num1: float, operator: chr) -> str:
         return str(total)
 
 
-def all_together(user_expression: str):
+def all_together(user_expression: str) -> str:
     """
     get expression from user and combine all functions together to print the result of the expression
     or print the error in the expression
     :param user_expression: get expression from the input of a user
+    :return result of expression for pytest, if there is error: return kind of the error
     """
     try:
         expression_without_spaces = "".join(user_expression.split())
         if not expression_without_spaces:
             print("user didn't give an expression")
-            return
+            return "NoneError"
         final_expression = ''.join(check_tilda_and_neg(expression_without_spaces))
         postfix_expression = converter_expression_to_postfix(final_expression)
         result_of_expression = calculate_postfix_expression(postfix_expression)
+        result_of_expression = round(result_of_expression, 2)
         print("the result of the expression: " + str(result_of_expression))
-    except (ValueError, ZeroDivisionError, OverflowError) as err:
+        return str(result_of_expression)
+    except ValueError as err:
         print(err)
+        return "ValueError"
+    except ZeroDivisionError as err:
+        print(err)
+        return "ZeroDivisionError"
+    except OverflowError as err:
+        print(err)
+        return "OverflowError"
 
 
 def main():
