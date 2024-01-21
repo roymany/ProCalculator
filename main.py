@@ -215,8 +215,10 @@ def calculate_by_two_operators(num1: float, num2: float, operator: chr) -> str:
             raise ZeroDivisionError("there is division by zero in the expression")
         return str(num1 / num2)
     if operator == '^':
-        if num1 < 0 < num2 < 1:
-            raise ValueError("cant do power between zero to one for number lower than zero")
+        temp = num2
+        numbers_after_decimal = str(temp).split('.')[1]
+        if num1 < 0 and int(numbers_after_decimal) != 0:
+            raise ValueError("cant do power of float for number lower than zero")
         try:
             str(num1 ** num2)
         except OverflowError:
